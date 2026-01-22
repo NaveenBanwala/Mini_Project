@@ -1,0 +1,10 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Backend env
+.env
+
+.env
+Backend2/.env
+node_modules/

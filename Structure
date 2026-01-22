@@ -1,0 +1,55 @@
+FRONTEND
+
+src/
+├── assets/             # Images and global styles
+├── components/         # Reusable UI components
+│   ├── common/         # Navbar, Sidebar, Footer, ProtectedRoute
+│   ├── charts/         # Attendance visualizer (Recharts)
+│   └── messaging/      # Chat window, Message bubble
+├── context/            # AuthContext for JWT and User state
+├── hooks/              # Custom hooks (useAuth, useFetch)
+├── pages/
+│   ├── auth/           # Login, Signup
+│   ├── mentee/         # UploadExcel, StudentList, MenteeDashboard
+│   ├── parent/         # ChildProgress, ParentDashboard
+│   └── student/        # StudentDashboard
+├── services/           # Axios API instances (api.js, authService.js)
+├── utils/              # Formats, constants, role-checkers
+└── App.js              # Routing logic
+
+
+
+BACKEND(EXPRESS)
+backend/
+├── config/
+│   ├── db.js             # PostgreSQL Connection (Sequelize)
+│   └── transporter.js    # Nodemailer & Twilio Config
+├── controllers/
+│   └── menteeController.js # Logic for Excel & Notifications
+├── models/
+│   └── Student.js        # Sequelize Model (Equivalent to JPA Entity)
+├── routes/
+│   └── menteeRoutes.js    # API Endpoints
+├── services/
+│   └── notificationService.js # SMTP & WhatsApp Logic
+├── uploads/              # Temporary storage for files
+├── .env                  # Environment Variables (Secrets)
+├── package.json
+└── server.js             # Entry Point
+
+
+BACKEND
+
+src/main/java/com/portal/
+├── config/             # SecurityConfig (JWT), WebConfig (CORS)
+├── controller/         # AuthController, AttendanceController, MessageController
+├── dto/                # Request/Response Data Transfer Objects
+├── exception/          # GlobalExceptionHandler
+├── model/              # Entities: User, Student, Attendance, Message
+├── repository/         # JpaRepositories
+├── security/           # JwtFilter, JwtUtils, UserDetailsServiceImpl
+├── service/            # Business Logic
+│   ├── AttendanceService.java
+│   ├── ExcelService.java
+│   └── NotificationService.java (Twilio & SMTP)
+└── util/               # ExcelHelper (Apache POI logic)
