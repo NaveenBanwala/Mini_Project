@@ -31,7 +31,9 @@ API.interceptors.response.use(
 export const authAPI = {
     login: (creds) => API.post('/auth/login', creds),
     signup: (data) => API.post('/auth/signup', data),
-    me: () => API.get('/auth/me'), // Verify current user session
+    me: () => API.get('/auth/me'),
+
+    updateProfile: (data) => API.put('/auth/profile', data),
 };
 
 /**
@@ -58,19 +60,25 @@ export const menteeAPI = {
     updateAttendance: (rollNo, data) => API.put(`/mentee/students/${rollNo}`, data),
     
     // Alerts
-    sendAlert: (rollNo) => API.post(`/mentee/students/${rollNo}/send-alert`), 
+    sendBulkAlerts: () => API.post('/mentee/send-alerts'),
+
+    getProfile: () => API.get('/mentee/profile'),
 };
 /**
  * Parent Endpoints
  */
 export const parentAPI = {
-    // Get child details, attendance, and mentor info
-    getChildData: (roll) => API.get(`/parent/child/${roll}`),
+    // Fetches data using either the Roll Number or Parent ID
+    getChildData: (identifier) => {
+        if (!identifier) {
+            console.error("API Error: No identifier provided to getChildData");
+            return;
+        }
+        return API.get(`/parent/child/${identifier}`);
+    },
     
-    // If a parent is linked via session, fetch their specific dashboard
     getParentDashboard: () => API.get('/parent/dashboard'),
 };
-
 /**
  * Chat & Communication Endpoints
  */

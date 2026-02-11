@@ -1,59 +1,59 @@
 const Student = require('../models/Student');
 const User = require('../models/User');
+const { Op } = require('sequelize');
 
 exports.getChildByRoll = async (req, res) => {
     try {
-        // We accept either rollNo or parentId from the request
-        const { identifier } = req.params; 
+        const { identifier } = req.params;
+        console.log("🟢 API HIT: Searching for Student:", identifier);
 
-        console.log("-----------------------------------------");
-        console.log("🔍 PARENT SEARCH TRIGGERED");
-        console.log("📥 Received Identifier:", identifier);
-
-        // 1. Find the student where identifier matches EITHER rollNo OR parentId
+        // 1. Find the student record
         const student = await Student.findOne({ 
-            where: {
-                [require('sequelize').Op.or]: [
-                    { rollNo: String(identifier).trim() },
-                    { parentId: String(identifier).trim() }
-                ]
-            }
+            where: { rollNo: String(identifier).trim() }
         });
 
         if (!student) {
-            console.log("❌ NOT FOUND:", identifier);
-            return res.status(404).json({ 
-                message: "No student found. Please check the ID provided by the Mentor." 
-            });
+            console.log("❌ Student Not Found in DB");
+            return res.status(404).json({ message: "Student record not found." });
         }
 
-        console.log("✅ FOUND STUDENT:", student.fullName);
-
-        // 2. Fetch Mentor info so parent can contact them
-        let mentor = null;
+        // 2. Fetch Mentor data safely
+        let mentorData = null;
         if (student.mentorId) {
-            mentor = await User.findOne({ 
-                where: { id: student.mentorId },
-                attributes: ['username', 'email'] // Use 'username' since your table has it
-            });
+            // We fetch the whole object first to avoid "column does not exist" crashes
+            mentorData = await User.findByPk(student.mentorId);
         }
 
-        // 3. Return combined data
-        res.json({ 
-            student, 
-            mentor: mentor || { username: "Not Assigned", email: "N/A" } 
+        // 3. Return structured JSON
+        res.json({
+            student: {
+                rollNo: student.rollNo,
+                fullName: student.fullName,
+                subject: student.subject,
+                actualAttendance: student.actualAttendance,
+                parentName: student.parentName,
+                parentId: student.parentId
+            },
+            mentor: {
+                id: mentorData?.id,
+                // Use || to provide fallbacks if the database column names differ
+                name: mentorData?.username || mentorData?.name || "Not Assigned",
+                email: mentorData?.email || "N/A",
+                // Check if mobile exists on the object, otherwise return N/A
+                mobile: mentorData?.mobile || mentorData?.phone || "N/A"
+            }
         });
 
     } catch (err) {
-        console.error("🔥 Parent Controller Error:", err);
-        res.status(500).json({ error: "Internal Server Error" });
+        // This will now catch any other database issues without crashing the whole server
+        console.error("🔥 Controller Error:", err);
+        res.status(500).json({ 
+            message: "Internal Server Error", 
+            error: err.message 
+        });
     }
 };
 
 exports.getParentDashboard = async (req, res) => {
-    // This can be used to send general announcements to parents
-    res.json({ 
-        message: "Welcome to the Parent Portal",
-        instructions: "Enter your Parent ID to view your child's live attendance." 
-    });
+    res.json({ message: "Dashboard data loaded successfully" });
 };
